@@ -85,6 +85,9 @@ void GC_push_all_stacks() {
 #elif defined(ARM)
   arm_thread_state_t state;
   mach_msg_type_number_t thread_state_count = ARM_THREAD_STATE_COUNT;
+#elif defined(AARCH64)
+  arm_thread_state64_t state;
+  mach_msg_type_number_t thread_state_count = ARM_THREAD_STATE64_COUNT;
 #elif defined(X86_64)
   x86_thread_state64_t state;
   mach_msg_type_number_t thread_state_count = x86_THREAD_STATE64_COUNT;
@@ -240,6 +243,43 @@ void GC_push_all_stacks() {
         GC_push_one(state.__lr);
         GC_push_one(state.__pc);
         GC_push_one(state.__cpsr);
+#elif defined(AARCH64)
+        lo = (void*)state.__sp;
+
+        GC_push_one(state.__x[0]);
+        GC_push_one(state.__x[1]);
+        GC_push_one(state.__x[2]);
+        GC_push_one(state.__x[3]);
+        GC_push_one(state.__x[4]);
+        GC_push_one(state.__x[5]);
+        GC_push_one(state.__x[6]);
+        GC_push_one(state.__x[7]);
+        GC_push_one(state.__x[8]);
+        GC_push_one(state.__x[9]);
+        GC_push_one(state.__x[10]);
+        GC_push_one(state.__x[11]);
+        GC_push_one(state.__x[12]);
+        GC_push_one(state.__x[13]);
+        GC_push_one(state.__x[14]);
+        GC_push_one(state.__x[15]);
+        GC_push_one(state.__x[16]);
+        GC_push_one(state.__x[17]);
+        GC_push_one(state.__x[18]);
+        GC_push_one(state.__x[19]);
+        GC_push_one(state.__x[20]);
+        GC_push_one(state.__x[21]);
+        GC_push_one(state.__x[22]);
+        GC_push_one(state.__x[23]);
+        GC_push_one(state.__x[24]);
+        GC_push_one(state.__x[25]);
+        GC_push_one(state.__x[26]);
+        GC_push_one(state.__x[27]);
+        GC_push_one(state.__x[28]);
+        GC_push_one(state.__x[29]);
+        GC_push_one(state.__x[30]);
+        GC_push_one(state.__lr);  // 链接寄存器
+        GC_push_one(state.__pc);  // 程序计数器
+        GC_push_one(state.__cpsr); // 状态寄存器
 #else
 # error FIXME for non-x86 || ppc architectures
 #endif

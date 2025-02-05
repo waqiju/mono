@@ -64,6 +64,14 @@
 #   define DARWIN
 # endif
 
+// 检查 DARWIN 是否被定义
+#ifdef DARWIN
+#   warning "DARWIN is defined! This is a macOS/Darwin system."
+#else
+#   warning "DARWIN is NOT defined! This is NOT a macOS/Darwin system."
+#endif
+
+
 /* Determine the machine type: */
 # if defined(__native_client__)
 #    define NACL
@@ -72,6 +80,14 @@
 #        define mach_type_known
 #    else
          /* Here we will rely upon arch-specific defines. */
+#    endif
+# endif
+# if defined(__aarch64__)
+#    define AARCH64
+#    if !defined(LINUX) && !defined(DARWIN) && !defined(FREEBSD) \
+        && !defined(NN_BUILD_TARGET_PLATFORM_NX)
+#      define NOSYS
+#      define mach_type_known
 #    endif
 # endif
 # if defined(__arm__) || defined(__thumb__)
@@ -359,6 +375,11 @@
 #    define GETPAGESIZE() getpagesize()
 #   elif defined(__arm__)
 #    define ARM
+#    define mach_type_known
+#    define DARWIN_DONT_PARSE_STACK
+#    define GC_DONT_REGISTER_MAIN_STATIC_DATA
+#   elif defined(__aarch64__)
+#    define AARCH64
 #    define mach_type_known
 #    define DARWIN_DONT_PARSE_STACK
 #    define GC_DONT_REGISTER_MAIN_STATIC_DATA
@@ -2026,6 +2047,83 @@
       /* __stack_base__ is set in newlib/libc/sys/arm/crt0.S  */
       extern void *__stack_base__;
 #     define STACKBOTTOM ((ptr_t) (__stack_base__))
+#   endif
+#endif
+
+#ifdef AARCH64
+#   define MACH_TYPE "ARM64"
+#   define CPP_WORDSZ 64
+#   define ALIGNMENT 8
+
+#   ifdef NETBSD
+#       define OS_TYPE "NETBSD"
+#       define HEURISTIC2
+#       ifdef __ELF__
+#           define DATASTART GC_data_start
+#           define DYNAMIC_LOADING
+#       else
+           extern char etext[];
+#           define DATASTART ((ptr_t)(etext))
+#       endif
+#       define USE_GENERIC_PUSH_REGS
+#   endif
+
+#   ifdef LINUX
+#       define OS_TYPE "LINUX"
+#       define LINUX_STACKBOTTOM
+#       undef STACK_GRAN
+#       define STACK_GRAN 0x10000000
+#       define USE_GENERIC_PUSH_REGS
+#       ifdef __ELF__
+#           define DYNAMIC_LOADING
+#           include <features.h>
+#           if defined(__GLIBC__) && __GLIBC__ >= 2
+#               define SEARCH_FOR_DATA_START
+#           elif defined(HOST_ANDROID)
+#               define SEARCH_FOR_DATA_START
+#           else
+               extern char **__environ;
+#               define DATASTART ((ptr_t)(&__environ))
+                          /* hideous kludge: __environ is the first */
+                          /* word in crt0.o, and delimits the start */
+                          /* of the data segment, no matter which   */
+                          /* ld options were passed through.        */
+                          /* We could use _etext instead, but that  */
+                          /* would include .rodata, which may       */
+                          /* contain large read-only data tables    */
+                          /* that we'd rather not scan.             */
+#           endif
+           extern int _end[];
+#           define DATAEND (_end)
+#       else
+           extern int etext[];
+#           define DATASTART ((ptr_t)((((word) (etext)) + 0xfff) & ~0xfff))
+#       endif
+#   endif
+
+#   ifdef MSWINCE
+#       define OS_TYPE "MSWINCE"
+#       define DATAEND /* not needed */
+#   endif
+
+#   ifdef DARWIN
+#       define OS_TYPE "DARWIN"
+#       define DATASTART ((ptr_t) get_etext())
+#       define DATAEND   ((ptr_t) get_end())
+#       define STACKBOTTOM ((ptr_t) 0x100000000)  /* ARM64 的堆栈起始地址 */
+#       define USE_MMAP
+#       define USE_MMAP_ANON
+#       define USE_MUNMAP
+#   endif
+
+#   ifdef NOSYS
+       /* __data_start is usually defined in the target linker script.  */
+       extern int __data_start[];
+#       define DATASTART (ptr_t)(__data_start)
+#       define USE_GENERIC_PUSH_REGS
+       /* __stack_base__ is set in newlib/libc/sys/arm/crt0.S  */
+       extern void *__stack_base__;
+#       define STACKBOTTOM ((ptr_t) (__stack_base__))
 #   endif
 #endif
 

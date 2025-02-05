@@ -1990,4 +1990,7 @@ void GC_err_puts GC_PROTO((GC_CONST char *s));
   
 # endif
 
+void GC_start_debugging(void);
+
+
 # endif /* GC_PRIVATE_H */
