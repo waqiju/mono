@@ -58,7 +58,74 @@ static int lowzero;
 static int high;
 extern int csharp;
 
-output () {
+static void
+free_itemsets (void);
+
+static void
+free_reductions (void);
+
+static void
+free_shifts (void);
+
+static void
+goto_actions (void);
+
+static void
+output_actions (void);
+
+static void
+output_base (void);
+
+static void
+output_check (void);
+
+static void
+output_debug (void);
+
+static void
+output_defines (const char *prefix);
+
+static void
+output_rule_data (void);
+
+static void
+output_semantic_actions (void);
+
+static void
+output_stored_text (FILE *file, const char *name);
+
+static void
+output_table (void);
+
+static void
+output_trailing_text (void);
+
+static void
+save_column (int symbol, int default_state);
+
+static void
+sort_actions (void);
+
+static void 
+output_yydefred (void);
+
+static int
+default_goto (int symbol);
+
+static int
+matching_vector (int vector);
+
+static int
+pack_vector (int vector);
+
+static void
+token_actions (void);
+
+static void
+pack_table (void);
+void
+output (void)
+{
   int lno = 0;
   char buf [128];
 
@@ -98,7 +165,8 @@ output () {
   free_parser();
 }
 
-output_rule_data()
+static void
+output_rule_data (void)
 {
     register int i;
     register int j;
@@ -160,8 +228,8 @@ output_rule_data()
     printf("\n  };\n");
 }
 
-
-output_yydefred()
+static void
+output_yydefred (void)
 {
     register int i, j;
 
@@ -189,8 +257,8 @@ output_yydefred()
     printf("\n  };\n");
 }
 
-
-output_actions()
+static void
+output_actions (void)
 {
     nvectors = 2*nstates + nvars;
 
@@ -217,8 +285,8 @@ output_actions()
     output_check();
 }
 
-
-token_actions()
+static void
+token_actions (void)
 {
     register int i, j;
     register int shiftcount, reducecount;
@@ -302,7 +370,8 @@ token_actions()
     FREE(actionrow);
 }
 
-goto_actions()
+static void
+goto_actions (void)
 {
     register int i, j, k;
 
@@ -334,9 +403,8 @@ goto_actions()
     FREE(state_count);
 }
 
-int
-default_goto(symbol)
-int symbol;
+static int
+default_goto (int symbol)
 {
     register int i;
     register int m;
@@ -369,11 +437,8 @@ int symbol;
     return (default_state);
 }
 
-
-
-save_column(symbol, default_state)
-int symbol;
-int default_state;
+static void
+save_column (int symbol, int default_state)
 {
     register int i;
     register int m;
@@ -413,7 +478,8 @@ int default_state;
     width[symno] = sp1[-1] - sp[0] + 1;
 }
 
-sort_actions()
+static void
+sort_actions (void)
 {
   register int i;
   register int j;
@@ -447,8 +513,8 @@ sort_actions()
     }
 }
 
-
-pack_table()
+static void
+pack_table (void)
 {
     register int i;
     register int place;
@@ -510,9 +576,8 @@ pack_table()
 /*  faster.  Also, it depends on the vectors being in a specific	*/
 /*  order.								*/
 
-int
-matching_vector(vector)
-int vector;
+static int
+matching_vector (int vector)
 {
     register int i;
     register int j;
@@ -549,11 +614,8 @@ int vector;
     return (-1);
 }
 
-
-
-int
-pack_vector(vector)
-int vector;
+static int
+pack_vector (int vector)
 {
     register int i, j, k, l;
     register int t;
@@ -627,9 +689,8 @@ int vector;
     }
 }
 
-
-
-output_base()
+static void
+output_base (void)
 {
     register int i, j;
 
@@ -695,9 +756,8 @@ output_base()
     FREE(base);
 }
 
-
-
-output_table()
+static void
+output_table (void)
 {
     register int i;
     register int j;
@@ -724,9 +784,8 @@ output_table()
     FREE(table);
 }
 
-
-
-output_check()
+static void
+output_check (void)
 {
     register int i;
     register int j;
@@ -755,10 +814,8 @@ output_check()
     FREE(check);
 }
 
-
-int
-is_C_identifier(name)
-char *name;
+static int
+is_C_identifier (const char *name)
 {
     register char *s;
     register int c;
@@ -788,9 +845,8 @@ char *name;
     return (1);
 }
 
-
-output_defines(prefix)
-char *prefix;
+static void
+output_defines (const char *prefix)
 {
     register int c, i;
     register char *s;
@@ -827,10 +883,8 @@ char *prefix;
     printf("  %s yyErrorCode = %d%s\n", prefix ? prefix : "", symbol_value[1], csharp ? ";" : ";");
 }
 
-
-output_stored_text(file, name)
-FILE *file;
-char *name;
+static void
+output_stored_text (FILE *file, const char *name)
 {
     register int c;
     register FILE *in;
@@ -854,8 +908,8 @@ char *name;
     fclose(in);
 }
 
-
-output_debug()
+static void
+output_debug (void)
 {
     register int i, j, k, max;
     char **symnam, *s;
@@ -1068,7 +1122,8 @@ output_debug()
       FREE(symnam);
 }
 
-output_trailing_text()
+static void
+output_trailing_text (void)
 {
     register int c, last;
     register FILE *in;
@@ -1116,8 +1171,8 @@ output_trailing_text()
     printf(default_line_format, ++outline + 1);
 }
 
-
-output_semantic_actions()
+static void
+output_semantic_actions (void)
 {
     register int c, last;
 
@@ -1150,8 +1205,8 @@ output_semantic_actions()
     printf(default_line_format, ++outline + 1);
 }
 
-
-free_itemsets()
+static void
+free_itemsets (void)
 {
     register core *cp, *next;
 
@@ -1163,8 +1218,8 @@ free_itemsets()
     }
 }
 
-
-free_shifts()
+static void
+free_shifts (void)
 {
     register shifts *sp, *next;
 
@@ -1176,9 +1231,8 @@ free_shifts()
     }
 }
 
-
-
-free_reductions()
+static void
+free_reductions (void)
 {
     register reductions *rp, *next;
 

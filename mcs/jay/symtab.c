@@ -118,8 +118,8 @@ char *name;
     return (bp);
 }
 
-
-create_symbol_table()
+void
+create_symbol_table (void)
 {
     register int i;
     register bucket *bp;
@@ -138,15 +138,15 @@ create_symbol_table()
     symbol_table[hash("error")] = bp;
 }
 
-
-free_symbol_table()
+void 
+free_symbol_table (void)
 {
     FREE(symbol_table);
     symbol_table = 0;
 }
 
-
-free_symbols()
+void
+free_symbols (void)
 {
     register bucket *p, *q;
 
