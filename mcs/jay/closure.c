@@ -47,8 +47,8 @@ unsigned *ruleset;
 static unsigned *first_derives;
 static unsigned *EFF;
 
-
-set_EFF()
+static void
+set_EFF(void)
 {
     register unsigned *row;
     register int symbol;
@@ -83,8 +83,8 @@ set_EFF()
 #endif
 }
 
-
-set_first_derives()
+void
+set_first_derives(void)
 {
     register unsigned *rrow;
     register unsigned *vrow;
@@ -139,9 +139,8 @@ set_first_derives()
 }
 
 
-closure(nucleus, n)
-short *nucleus;
-int n;
+void
+closure(short *nucleus, int n)
 {
     register int ruleno;
     register unsigned word;
@@ -207,9 +206,8 @@ int n;
 #endif
 }
 
-
-
-finalize_closure()
+void
+finalize_closure(void)
 {
   FREE(itemset);
   FREE(ruleset);
