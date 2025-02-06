@@ -5876,7 +5876,7 @@ mono_metadata_image_set_foreach(MonoImageSetFunc func, gpointer user_data)
 	GenericClassForeachData data;
 	guint i;
 
-	data.func = func;
+	data.func = (MonoGenericClassFunc) func;
 	data.user_data = user_data;
 
 	for (i = 0; i < HASH_TABLE_SIZE; ++i)

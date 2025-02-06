@@ -1146,7 +1146,7 @@ mono_gc_wbarrier_object_copy_internal (MonoObject* obj, MonoObject *src)
 void
 mono_gc_clear_domain (MonoDomain *domain)
 {
-	GC_call_with_alloc_lock (null_ephemerons_for_domain, domain);
+	GC_call_with_alloc_lock ((GC_fn_type) null_ephemerons_for_domain, domain);
 }
 
 void
