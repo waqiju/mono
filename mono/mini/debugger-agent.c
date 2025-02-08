@@ -10598,10 +10598,10 @@ static void burst_mono_install_hooks_imp(BurstMonoDebuggerCallbacks* callbacks,v
 	g_BurstDebugCallbacks.BurstFetchMethodName = callbacks->BurstFetchMethodName;
 
 	// Provide the callee with access to the features it will need
-	callbacks->buffer_add_byte = buffer_add_byte;
-	callbacks->buffer_add_int = buffer_add_int;
-	callbacks->buffer_add_id = buffer_add_id;
-	callbacks->buffer_add_string = buffer_add_string;
+	callbacks->buffer_add_byte = (void (*)(void *, guint8))buffer_add_byte;
+	callbacks->buffer_add_int = (void (*)(void *, guint32))buffer_add_int;
+	callbacks->buffer_add_id = (void (*)(void *, int))buffer_add_id;
+	callbacks->buffer_add_string = (void (*)(void *, const char *))buffer_add_string;
 	callbacks->buffer_add_ptr_id = buffer_add_ptr_id_unsafe;
 	callbacks->mono_burst_shutdown = burst_mono_shutdown;
 

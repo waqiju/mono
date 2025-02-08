@@ -183,33 +183,48 @@ mono_dyld_image_info_free (void *info)
 static void
 image_added (const struct mach_header *hdr32, intptr_t vmaddr_slide)
 {
-	#if SIZEOF_VOID_P == 8
-	const struct mach_header_64 *hdr64 = (const struct mach_header_64 *)hdr32;
-	const struct section_64 *sec = getsectbynamefromheader_64 (hdr64, SEG_DATA, SECT_DATA);
-	#else
-	const struct section *sec = getsectbynamefromheader (hdr32, SEG_DATA, SECT_DATA);
-	#endif
-	Dl_info dlinfo;
-	if (!dladdr (hdr32, &dlinfo)) return;
-	if (sec == NULL) return;
+    Dl_info dlinfo;
 
-	mono_os_mutex_lock (&images_mutex);
-	gpointer found = g_hash_table_lookup (images, (gpointer) hdr32);
-	mono_os_mutex_unlock (&images_mutex);
+#if SIZEOF_VOID_P == 8
+    const struct mach_header_64 *hdr64 = (const struct mach_header_64 *)hdr32;
+    uint64_t sec_size = 0;
+    /* 使用 getsectiondata 获取数据段信息 */
+    const uint8_t *sec_data = getsectiondata(hdr64, SEG_DATA, SECT_DATA, &sec_size);
+    if (sec_data == NULL)
+        return;
+#else
+    const struct section *sec = getsectbynamefromheader(hdr32, SEG_DATA, SECT_DATA);
+    if (sec == NULL)
+        return;
+#endif
 
-	if (found == NULL) {
-		struct mono_dyld_image_info *info = g_new0 (struct mono_dyld_image_info, 1);
-		info->header_addr = hdr32;
-		info->data_section_start = GINT_TO_POINTER (sec->addr);
-		info->data_section_end = GINT_TO_POINTER (sec->addr + sec->size);
-		info->name = g_strdup (dlinfo.dli_fname);
-		info->order = dyld_order;
-		++dyld_order;
+    if (!dladdr(hdr32, &dlinfo))
+        return;
 
-		mono_os_mutex_lock (&images_mutex);
-		g_hash_table_insert (images, (gpointer) hdr32, info);
-		mono_os_mutex_unlock (&images_mutex);
-	}
+
+    mono_os_mutex_lock(&images_mutex);
+    gpointer found = g_hash_table_lookup(images, (gpointer)hdr32);
+    mono_os_mutex_unlock(&images_mutex);
+
+    if (found == NULL) {
+        struct mono_dyld_image_info *info = g_new0(struct mono_dyld_image_info, 1);
+        info->header_addr = hdr32;
+#if SIZEOF_VOID_P == 8
+        /* 对于 64 位平台，直接使用 getsectiondata 返回的数据指针和长度 */
+        info->data_section_start = (gpointer)sec_data;
+        info->data_section_end = (gpointer)(sec_data + sec_size);
+#else
+        info->data_section_start = GINT_TO_POINTER(sec->addr);
+        info->data_section_end = GINT_TO_POINTER(sec->addr + sec->size);
+#endif
+        info->name = g_strdup(dlinfo.dli_fname);
+        info->order = dyld_order;
+        ++dyld_order;
+
+        mono_os_mutex_lock(&images_mutex);
+        g_hash_table_insert(images, (gpointer)hdr32, info);
+        mono_os_mutex_unlock(&images_mutex);
+    }
 }
 
 static void
