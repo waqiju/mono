@@ -39,7 +39,7 @@ MONO_OPTIONS_SRC = $(SRC_ROOT)/mcs/class/Mono.Options/Mono.Options/Options.cs
 HASH=9dc880dd
 .stamp-clone-$(HASH):
 	rm -Rf $(CPPSHARP_BASE_DIR)
-	git clone -b $(HASH) --depth 1 git://github.com/xamarin/CppSharpBinaries.git $(CPPSHARP_BASE_DIR) && touch $@
+	git clone -b $(HASH) --depth 1 https://github.com/xamarin/CppSharpBinaries.git $(CPPSHARP_BASE_DIR) && touch $@
 
 MonoAotOffsetsDumper.exe: .stamp-clone-$(HASH) MonoAotOffsetsDumper.cs $(MONO_OPTIONS_SRC)
 	mcs MonoAotOffsetsDumper.cs /debug /nowarn:0436 $(MONO_OPTIONS_SRC) $(CPPSHARP_REFS)
