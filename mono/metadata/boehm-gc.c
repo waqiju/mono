@@ -147,7 +147,7 @@ static mse * GC_gcj_vector_proc (word * addr, mse * mark_stack_ptr,
 	mono_array_size_t length = a->max_length;
 	MonoClass* array_type = a->obj.vtable->klass;
 	MonoClass *element_type = array_type->element_class;
-	GC_descr element_desc = element_type->gc_descr;
+	GC_descr element_desc = (GC_descr)element_type->gc_descr;
 
 	g_assert ((element_desc & GC_DS_TAGS) == GC_DS_BITMAP);
 	g_assert (element_type->valuetype);
