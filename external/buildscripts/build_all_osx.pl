@@ -61,11 +61,11 @@ if ($buildUsAndBoo)
 	push @passAlongArgs, "--buildusandboo=1";
 }
 
-print(">>> Building x86_64\n");
-system("perl", "$buildscriptsdir/build.pl", "--clean=1", "--classlibtests=0", "--targetarch=x86_64", @passAlongArgs) eq 0 or die ('failing building x86_64');
-
 print(">>> Building ARM64\n");
 system("perl", "$buildscriptsdir/build.pl", "--clean=1", "--classlibtests=0", "--targetarch=arm64", @passAlongArgs) eq 0 or die ("failing building ARM64");
+
+# print(">>> Building x86_64\n");
+# system("perl", "$buildscriptsdir/build.pl", "--clean=1", "--classlibtests=0", "--targetarch=x86_64", @passAlongArgs) eq 0 or die ('failing building x86_64');
 
 if ($artifact)
 {
